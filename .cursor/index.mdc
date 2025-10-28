@@ -1,0 +1,67 @@
+---
+alwaysApply: true
+---
+# Coding pattern preferences
+
+- Always prefer simple solutions
+- Avoid duplication of code whenever possible, which means checking for other areas of the codebase that might already have similar code and functionality
+- Write code that takes into account the different environments: dev, test, and prod
+- You are careful to only make changes that are requested or you are confident are well understood and related to the change being requested
+- When fixing an issue or bug, do not introduce a new pattern or technology without first exhausting all options for the existing implementation. And if you finally do this, make sure to remove the old implementation afterwards so we don't have duplicate logic.
+- Keep the codebase very clean and organized
+- Avoid writing scripts in files if possible, especially if the script is likely only to be run once
+- Avoid having files over 200-300 lines of code. Refactor at that point.
+- Mocking data is only needed for tests, never mock data for dev or prod
+- Never add stubbing or fake data patterns to code that affects the dev or prod environments
+- Never overwrite my .env file without first asking and confirming
+
+
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── (default)/      # English static routes (lang="en")
+│   │   ├── articles/, services/, meet/, pay/
+│   ├── (i18n)/         # Localized routes
+│   │   └── [lang]/[segment]/[subsegment]/
+│   ├── sitemap.ts, robots.ts
+├── components/         # UI components
+├── content/articles/   # Markdown + translations/[lang]/
+├── data/               # Structured data (services, media)
+├── lib/                # Utils + localization.ts
+└── types/
+```
+
+## Content
+
+- **Articles**: `src/content/articles/` - Markdown with frontmatter, bidirectional translation refs
+- **Services**: `src/data/servicesOther.ts` - Category filtering
+- **Languages**: en, fr - Routes pre-generated with `generateStaticParams`
+
+## SEO & Metadata
+
+- Metadata via `generateMetadata()` per route, translations from `lib/localization.ts`
+- Each language generates unique metadata (no reuse)
+- Sitemap with GitHub API for lastmod dates
+- Server-side `lang` and `dir` attributes (RTL for Arabic)
+
+## Analytics & Events
+
+- Custom events via `trackGtmEvent()` from `src/lib/gtm.ts` → GTM auto-forwards all to analytics systems
+- Events buffered in `dataLayer` until GTM loads, no GTM config changes needed
+
+## Development
+
+**Commands:**
+- `npm run dev` - Dev server
+- `npm run build` - Production build
+- `npm test` - Tests
+- `npm run validate-metadata` - SEO validation
+- `npx tsx scripts/test-cache-headers.ts` - Cache headers test
+
+**Best Practices:**
+- Server Components by default
+- CSS Modules for styling
+- Update `pageFilesMap` in `lib/fileModification.ts` for new pages (sitemap lastmod)

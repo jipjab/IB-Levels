@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  trading-levels:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trading-levels-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    # Si vous avez des variables d'environnement, décommentez:
+    # env_file:
+    #   - .env.production
+    networks:
+      - trading-levels-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  trading-levels-network:
+    driver: bridge
