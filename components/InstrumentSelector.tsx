@@ -28,9 +28,9 @@ const InstrumentSelector = ({ selected, onChange }: InstrumentSelectorProps) => 
   };
 
   return (
-    <div className="flex items-start sm:items-center gap-2 flex-wrap">
+    <div className="w-full flex flex-col items-center gap-1.5 sm:gap-2">
       <span className="text-xs font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Instruments:</span>
-      <div className="flex flex-wrap gap-1.5 sm:gap-2">
+      <div className="flex flex-wrap gap-1 sm:gap-1.5 justify-center">
         {instruments.map((instrument) => {
           const isSelected = selected.includes(instrument.symbol);
           return (
@@ -39,7 +39,8 @@ const InstrumentSelector = ({ selected, onChange }: InstrumentSelectorProps) => 
               type="button"
               onClick={() => handleToggle(instrument.symbol)}
               className={`
-                px-3 py-1.5 rounded text-xs font-medium transition-colors touch-manipulation
+                px-2.5 min-[400px]:px-3 py-1.5 rounded text-xs font-medium 
+                transition-colors touch-manipulation
                 ${
                   isSelected
                     ? 'bg-blue-600 text-white active:bg-blue-700 dark:bg-blue-500 dark:active:bg-blue-600'
@@ -56,14 +57,14 @@ const InstrumentSelector = ({ selected, onChange }: InstrumentSelectorProps) => 
         <button
           type="button"
           onClick={handleSelectAll}
-          className="px-2 py-1.5 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 active:text-blue-800 dark:active:text-blue-200 font-medium underline touch-manipulation"
+          className="px-2 py-1.5 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 active:text-blue-800 dark:active:text-blue-200 font-medium underline touch-manipulation whitespace-nowrap"
           aria-label={
             selected.length === instruments.length
               ? 'Deselect all instruments'
               : 'Select all instruments'
           }
         >
-          {selected.length === instruments.length ? 'Clear all' : 'Select all'}
+          {selected.length === instruments.length ? 'Clear' : 'All'}
         </button>
       </div>
     </div>

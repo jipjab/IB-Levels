@@ -24,23 +24,29 @@ const DateSelector = ({
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">From:</span>
+    <div className="w-full flex items-center justify-center gap-1 sm:gap-2 flex-wrap">
+      <span className="text-xs font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+        <span className="hidden min-[400px]:inline">From:</span>
+        <span className="min-[400px]:hidden">📅</span>
+      </span>
       <input
         type="date"
         id="start-date"
         value={format(startDate, 'yyyy-MM-dd')}
         onChange={handleStartChange}
-        className="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        className="px-1.5 min-[400px]:px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         aria-label="Select start date"
       />
-      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">To:</span>
+      <span className="text-xs font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+        <span className="hidden min-[400px]:inline">To:</span>
+        <span className="min-[400px]:hidden">→</span>
+      </span>
       <input
         type="date"
         id="end-date"
         value={format(endDate, 'yyyy-MM-dd')}
         onChange={handleEndChange}
-        className="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        className="px-1.5 min-[400px]:px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         aria-label="Select end date"
       />
     </div>
