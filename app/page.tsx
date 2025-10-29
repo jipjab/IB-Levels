@@ -435,12 +435,61 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Footer Bottom */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-center text-sm">
+          {/* Footer Bottom with Logo and Copyright */}
+          <div className="flex flex-col items-center gap-6">
+            {/* Logo */}
             <Link href="/" className="cursor-pointer" aria-label="Go to home page">
               <Logo size="sm" showText={true} variant="light" />
             </Link>
-            <p className="text-gray-400 dark:text-gray-500">
+
+            {/* Legal Disclaimer - Desktop: Full text, Mobile: Collapsible */}
+            <div className="w-full max-w-5xl">
+              {/* Mobile: Collapsible version */}
+              <details className="lg:hidden">
+                <summary className="cursor-pointer text-xs text-gray-400 hover:text-gray-300 text-center py-2 select-none">
+                  Legal Disclaimer & Risk Warning (tap to view)
+                </summary>
+                <div className="text-xs text-gray-400 dark:text-gray-500 space-y-2 mt-3 pt-3 border-t border-gray-700">
+                  <p>
+                    <strong className="text-gray-300">Risk:</strong> Trading is risky. Content is for informational purposes only, not financial advice. Past performance doesn't guarantee future results.
+                  </p>
+                  
+                  <p>
+                    <strong className="text-gray-300">Data:</strong> Provided by Twelve Data. Charts powered by TradingView™. All data "as is" - verify independently.
+                  </p>
+                  
+                  <p>
+                    <strong className="text-gray-300">No Affiliation:</strong> We have no access to your trading accounts and no affiliation with TradingView or Twelve Data.
+                  </p>
+                </div>
+              </details>
+
+              {/* Desktop: Full version */}
+              <div className="hidden lg:block text-xs text-gray-400 dark:text-gray-500 space-y-3">
+                <p>
+                  <strong className="text-gray-300">Risk Disclosure:</strong> Trading and investing are risky and many will lose money in connection with trading and investing activities. All content on this site is for informational and educational purposes only and should not be considered financial advice. Decisions to buy, sell, hold or trade in securities, commodities and other investments involve risk and are best made based on the advice of qualified financial professionals. Past performance does not guarantee future results.
+                </p>
+                
+                <p>
+                  <strong className="text-gray-300">No Personal Trading Access:</strong> As a provider of technical analysis information, we have no access to the personal trading accounts or brokerage statements of our customers. As a result, we have no reason to believe our customers perform better or worse than traders as a whole based on any content, tool, or platform feature we provide.
+                </p>
+                
+                <p>
+                  <strong className="text-gray-300">Third-Party Services:</strong> Charts used on this site are powered by TradingView, in which the majority of our technical indicators are built on. TradingView™ is a registered trademark of TradingView, Inc. <a href="https://www.tradingview.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">https://www.tradingview.com</a>. TradingView.com is not affiliated with the owner, developer, or provider of the services described herein.
+                </p>
+                
+                <p>
+                  <strong className="text-gray-300">Market Data:</strong> Market data is provided by Twelve Data. Real-time and historical market data is licensed from Twelve Data and provided through their API services. Learn more at <a href="https://twelvedata.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">https://twelvedata.com</a>.
+                </p>
+                
+                <p>
+                  <strong className="text-gray-300">Data Accuracy:</strong> All data is provided "as is" and should be verified independently for trading purposes. While we strive for accuracy, we make no warranties regarding the completeness, accuracy, or timeliness of the information provided.
+                </p>
+              </div>
+            </div>
+
+            {/* Copyright */}
+            <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
               &copy; {new Date().getFullYear()} IBLevels. All rights reserved.
             </p>
           </div>
