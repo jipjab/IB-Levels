@@ -451,11 +451,11 @@ export default function HomePage() {
                 </summary>
                 <div className="text-xs text-gray-400 dark:text-gray-500 space-y-2 mt-3 pt-3 border-t border-gray-700">
                   <p>
-                    <strong className="text-gray-300">Risk:</strong> Trading is risky. Content is for informational purposes only, not financial advice. Past performance doesn't guarantee future results.
+                    <strong className="text-gray-300">Risk:</strong> Trading is risky. Content is for informational purposes only, not financial advice. Past performance doesn&apos;t guarantee future results.
                   </p>
                   
                   <p>
-                    <strong className="text-gray-300">Data:</strong> Provided by Twelve Data. Charts powered by TradingView™. All data "as is" - verify independently.
+                    <strong className="text-gray-300">Data:</strong> Provided by Twelve Data. Charts powered by TradingView™. All data &quot;as is&quot; - verify independently.
                   </p>
                   
                   <p>
@@ -483,7 +483,7 @@ export default function HomePage() {
                 </p>
                 
                 <p>
-                  <strong className="text-gray-300">Data Accuracy:</strong> All data is provided "as is" and should be verified independently for trading purposes. While we strive for accuracy, we make no warranties regarding the completeness, accuracy, or timeliness of the information provided.
+                  <strong className="text-gray-300">Data Accuracy:</strong> All data is provided &quot;as is&quot; and should be verified independently for trading purposes. While we strive for accuracy, we make no warranties regarding the completeness, accuracy, or timeliness of the information provided.
                 </p>
               </div>
             </div>
