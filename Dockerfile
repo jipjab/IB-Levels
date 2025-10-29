@@ -7,7 +7,8 @@ WORKDIR /app
 
 # Copier les fichiers de dépendances
 COPY package.json package-lock.json* ./
-RUN npm ci
+# Installer TOUTES les dépendances (prod + dev) pour le build
+RUN npm ci --include=dev
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
@@ -19,9 +20,8 @@ COPY . .
 
 # Définir les variables d'environnement pour le build
 ENV NEXT_TELEMETRY_DISABLED 1
-ENV NODE_ENV production
 
-# Build l'application Next.js
+# Build l'application Next.js (sans NODE_ENV=production pour garder devDependencies)
 RUN npm run build
 
 # Stage 3: Runner (Image finale)
