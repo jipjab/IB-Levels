@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { subDays, format } from 'date-fns';
 import { InstrumentSymbol, TradingSessionType, TradingLevel } from '@/lib/types';
 import { hasSessionClosedSince, formatTimeUntilBoundary } from '@/lib/sessionBoundaries';
 import FilterPanel from '@/components/FilterPanel';
-import TradingChart from '@/components/TradingChart';
 import InitialBalanceCard from '@/components/InitialBalanceCard';
 import TradingLevelsTable from '@/components/TradingLevelsTable';
 import AdPlacement from '@/components/AdPlacement';
@@ -14,6 +14,23 @@ import AffiliateLinks from '@/components/AffiliateLinks';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 import SocialShare from '@/components/SocialShare';
+
+// Dynamic import for TradingChart to disable SSR and improve initial load
+const TradingChart = dynamic(() => import('@/components/TradingChart'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded overflow-hidden transition-colors">
+      <div className="px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-24"></div>
+      </div>
+      <div className="p-2 sm:p-4">
+        <div className="h-[400px] sm:h-[600px] bg-gray-100 dark:bg-gray-700 rounded animate-pulse flex items-center justify-center">
+          <div className="text-gray-400 dark:text-gray-500 text-sm">Loading chart...</div>
+        </div>
+      </div>
+    </div>
+  ),
+});
 
 // Cache key for localStorage
 const CACHE_KEY = 'iblevels_trading_data_cache';
@@ -31,7 +48,8 @@ interface CacheData {
 export default function HomePage() {
   const [mounted, setMounted] = useState(false);
   const [instruments, setInstruments] = useState<InstrumentSymbol[]>(['ES', 'NQ']);
-  const [startDate, setStartDate] = useState<Date>(subDays(new Date(), 1));
+  // Optimized: Start with 7 days instead of 30 for faster initial load
+  const [startDate, setStartDate] = useState<Date>(subDays(new Date(), 7));
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [session, setSession] = useState<TradingSessionType>('NewYork');
   const [tradingLevels, setTradingLevels] = useState<TradingLevel[]>([]);

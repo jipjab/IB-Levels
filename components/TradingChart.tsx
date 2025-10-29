@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { createChart, IChartApi, ISeriesApi, CandlestickData, Time } from 'lightweight-charts';
+import { useEffect, useRef, useMemo } from 'react';
+import { createChart, IChartApi, ISeriesApi, CandlestickData, Time, IPriceLine } from 'lightweight-charts';
 import { TradingLevel } from '@/lib/types';
 import { useTheme } from '@/lib/useTheme';
 
@@ -14,10 +14,25 @@ const TradingChart = ({ data, instrument }: TradingChartProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
+  const priceLinesRef = useRef<IPriceLine[]>([]);
   const { resolvedTheme } = useTheme();
+  
+  // Memoize candlestick data to avoid recalculations
+  const candlestickData = useMemo(() => {
+    return data
+      .map((level) => ({
+        time: (new Date(level.date).getTime() / 1000) as Time,
+        open: level.open,
+        high: level.high,
+        low: level.low,
+        close: level.close,
+      }))
+      .sort((a, b) => (a.time as number) - (b.time as number));
+  }, [data]);
 
+  // Create chart only once
   useEffect(() => {
-    if (!chartContainerRef.current) return;
+    if (!chartContainerRef.current || chartRef.current) return;
 
     // Responsive height
     const isMobile = window.innerWidth < 640;
@@ -29,7 +44,7 @@ const TradingChart = ({ data, instrument }: TradingChartProps) => {
     const textColor = isDark ? '#e5e7eb' : '#333333';
     const gridColor = isDark ? '#374151' : '#f0f0f0';
 
-    // Create chart
+    // Create chart with optimized settings
     const chart = createChart(chartContainerRef.current, {
       layout: {
         background: { color: bgColor },
@@ -44,18 +59,46 @@ const TradingChart = ({ data, instrument }: TradingChartProps) => {
       timeScale: {
         timeVisible: true,
         secondsVisible: false,
+        borderVisible: false, // Simplify appearance
       },
       rightPriceScale: {
         scaleMargins: {
           top: 0.1,
           bottom: 0.1,
         },
+        borderVisible: false, // Simplify appearance
+      },
+      crosshair: {
+        mode: 1, // Normal mode (less CPU intensive than magnet mode)
+        vertLine: {
+          width: 1,
+          color: isDark ? '#4b5563' : '#d1d5db',
+          style: 1, // Dashed
+          labelBackgroundColor: isDark ? '#374151' : '#9ca3af',
+        },
+        horzLine: {
+          width: 1,
+          color: isDark ? '#4b5563' : '#d1d5db',
+          style: 1, // Dashed
+          labelBackgroundColor: isDark ? '#374151' : '#9ca3af',
+        },
+      },
+      handleScroll: {
+        mouseWheel: true,
+        pressedMouseMove: true,
+        horzTouchDrag: true,
+        vertTouchDrag: false, // Disable for better performance
+      },
+      handleScale: {
+        axisPressedMouseMove: true,
+        mouseWheel: true,
+        pinch: true,
       },
     });
 
     chartRef.current = chart;
 
-    // Add candlestick series
+    // Add candlestick series with optimized settings
     const candlestickSeries = chart.addCandlestickSeries({
       upColor: '#10b981',
       downColor: '#ef4444',
@@ -63,65 +106,88 @@ const TradingChart = ({ data, instrument }: TradingChartProps) => {
       wickUpColor: '#10b981',
       wickDownColor: '#ef4444',
       priceScaleId: 'right',
+      // Performance optimizations
+      priceLineVisible: false,
+      lastValueVisible: true,
     });
 
     seriesRef.current = candlestickSeries;
 
-    // Handle resize
+    // Debounced resize handler for better performance
+    let resizeTimeout: NodeJS.Timeout;
     const handleResize = () => {
-      if (chartContainerRef.current && chartRef.current) {
-        const isMobile = window.innerWidth < 640;
-        const chartHeight = isMobile ? 400 : 600;
-        chart.applyOptions({
-          width: chartContainerRef.current.clientWidth,
-          height: chartHeight,
-        });
-      }
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (chartContainerRef.current && chartRef.current) {
+          const isMobile = window.innerWidth < 640;
+          const chartHeight = isMobile ? 400 : 600;
+          chart.applyOptions({
+            width: chartContainerRef.current.clientWidth,
+            height: chartHeight,
+          });
+        }
+      }, 150); // Debounce 150ms
     };
 
     window.addEventListener('resize', handleResize);
 
     return () => {
+      clearTimeout(resizeTimeout); // Clean up debounce timeout
       window.removeEventListener('resize', handleResize);
-      chart.remove();
+      if (chartRef.current) {
+        chartRef.current.remove();
+        chartRef.current = null;
+        seriesRef.current = null;
+      }
     };
+  }, []);
+
+  // Update theme without recreating chart
+  useEffect(() => {
+    if (!chartRef.current) return;
+
+    const isDark = resolvedTheme === 'dark';
+    const bgColor = isDark ? '#1f2937' : '#ffffff';
+    const textColor = isDark ? '#e5e7eb' : '#333333';
+    const gridColor = isDark ? '#374151' : '#f0f0f0';
+
+    chartRef.current.applyOptions({
+      layout: {
+        background: { color: bgColor },
+        textColor: textColor,
+      },
+      grid: {
+        vertLines: { color: gridColor },
+        horzLines: { color: gridColor },
+      },
+    });
   }, [resolvedTheme]);
 
+  // Update data and IB lines
   useEffect(() => {
-    if (!seriesRef.current || !chartRef.current || !data.length) return;
+    if (!seriesRef.current || !chartRef.current || !candlestickData.length) return;
 
-    // Clear price lines if method exists
-    try {
-      if (seriesRef.current && typeof seriesRef.current.removePriceLine === 'function') {
-        // Note: removeAllPriceLines doesn't exist in TradingView API
-        // We'll skip clearing price lines to avoid TypeScript errors
-        // Individual price lines would need to be tracked and removed separately
+    // Clear all existing price lines to avoid duplicates
+    priceLinesRef.current.forEach((line) => {
+      try {
+        seriesRef.current?.removePriceLine(line);
+      } catch (error) {
+        console.warn('Could not remove price line:', error);
       }
-    } catch (error) {
-      // Ignore error if method doesn't exist
-      console.warn('Could not remove price lines:', error);
-    }
+    });
+    priceLinesRef.current = [];
 
-    // Convert data to candlestick format
-    const candlestickData: CandlestickData[] = data
-      .map((level) => ({
-        time: (new Date(level.date).getTime() / 1000) as Time,
-        open: level.open,
-        high: level.high,
-        low: level.low,
-        close: level.close,
-      }))
-      .sort((a, b) => (a.time as number) - (b.time as number));
-
+    // Update candlestick data
     seriesRef.current.setData(candlestickData);
 
-    // Add IB level lines
+    // Add IB level lines only if we have data
     if (data.length > 0) {
       const latestData = data[0];
+      const newPriceLines: IPriceLine[] = [];
 
       // IB 1H High
       if (latestData.initialBalance.ib1hHigh > 0) {
-        seriesRef.current.createPriceLine({
+        const line = seriesRef.current.createPriceLine({
           price: latestData.initialBalance.ib1hHigh,
           color: '#3b82f6',
           lineWidth: 2,
@@ -129,11 +195,12 @@ const TradingChart = ({ data, instrument }: TradingChartProps) => {
           axisLabelVisible: true,
           title: 'IB 1H High',
         });
+        newPriceLines.push(line);
       }
 
       // IB 1H Low
       if (latestData.initialBalance.ib1hLow > 0) {
-        seriesRef.current.createPriceLine({
+        const line = seriesRef.current.createPriceLine({
           price: latestData.initialBalance.ib1hLow,
           color: '#3b82f6',
           lineWidth: 2,
@@ -141,11 +208,12 @@ const TradingChart = ({ data, instrument }: TradingChartProps) => {
           axisLabelVisible: true,
           title: 'IB 1H Low',
         });
+        newPriceLines.push(line);
       }
 
       // IB 15M High
       if (latestData.initialBalance.ib15mHigh > 0) {
-        seriesRef.current.createPriceLine({
+        const line = seriesRef.current.createPriceLine({
           price: latestData.initialBalance.ib15mHigh,
           color: '#8b5cf6',
           lineWidth: 1,
@@ -153,11 +221,12 @@ const TradingChart = ({ data, instrument }: TradingChartProps) => {
           axisLabelVisible: true,
           title: 'IB 15M High',
         });
+        newPriceLines.push(line);
       }
 
       // IB 15M Low
       if (latestData.initialBalance.ib15mLow > 0) {
-        seriesRef.current.createPriceLine({
+        const line = seriesRef.current.createPriceLine({
           price: latestData.initialBalance.ib15mLow,
           color: '#8b5cf6',
           lineWidth: 1,
@@ -165,11 +234,15 @@ const TradingChart = ({ data, instrument }: TradingChartProps) => {
           axisLabelVisible: true,
           title: 'IB 15M Low',
         });
+        newPriceLines.push(line);
       }
+
+      // Store references to new price lines
+      priceLinesRef.current = newPriceLines;
     }
 
     chartRef.current?.timeScale().fitContent();
-  }, [data]);
+  }, [candlestickData, data]);
 
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded overflow-hidden transition-colors">
