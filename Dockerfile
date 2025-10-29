@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Copier les fichiers de dépendances
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
@@ -16,6 +16,10 @@ WORKDIR /app
 # Copier les dépendances depuis l'étape précédente
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Définir les variables d'environnement pour le build
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV production
 
 # Build l'application Next.js
 RUN npm run build
