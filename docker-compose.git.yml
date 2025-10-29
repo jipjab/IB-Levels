@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.git
       args:
         # Remplacez par votre URL de repository
-        GIT_REPO_URL: https://github.com/votre-username/trading-levels.git
+        GIT_REPO_URL: https://github.com/jipjab/IB-Levels.git
         GIT_BRANCH: main
     container_name: trading-levels-app
     restart: unless-stopped
