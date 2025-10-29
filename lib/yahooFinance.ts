@@ -36,6 +36,9 @@ interface TwelveDataResponse {
 const TWELVE_DATA_API_KEY = process.env.TWELVE_DATA_API_KEY;
 const TWELVE_DATA_BASE_URL = 'https://api.twelvedata.com';
 
+// Helper for conditional logging
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 async function fetchFromTwelveData(
   symbol: string,
   interval: string,
@@ -44,7 +47,9 @@ async function fetchFromTwelveData(
 ): Promise<OHLCVData[]> {
   // If no API key, fall back to sample data
   if (!TWELVE_DATA_API_KEY || TWELVE_DATA_API_KEY === 'your_api_key_here') {
-    console.warn('Twelve Data API key not configured. Using sample data.');
+    if (isDevelopment) {
+      console.warn('[YahooFinance] Twelve Data API key not configured. Using sample data.');
+    }
     return generateFallbackData(symbol, startDate, endDate, interval);
   }
 
@@ -61,7 +66,9 @@ async function fetchFromTwelveData(
 
   try {
     const url = `${TWELVE_DATA_BASE_URL}/time_series?${params}`;
-    console.log(`Fetching ${symbol} from Twelve Data...`);
+    if (isDevelopment) {
+      console.log(`[YahooFinance] Fetching ${symbol} from Twelve Data...`);
+    }
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -71,16 +78,20 @@ async function fetchFromTwelveData(
     const data: TwelveDataResponse = await response.json();
 
     if (data.status === 'error') {
-      console.error('Twelve Data API error:', data.message);
+      console.error('[YahooFinance] Twelve Data API error:', data.message);
       return generateFallbackData(symbol, startDate, endDate, interval);
     }
 
     if (!data.values || data.values.length === 0) {
-      console.warn(`No data returned for ${symbol}`);
+      if (isDevelopment) {
+        console.warn(`[YahooFinance] No data returned for ${symbol}`);
+      }
       return generateFallbackData(symbol, startDate, endDate, interval);
     }
 
-    console.log(`Successfully fetched ${data.values.length} bars for ${symbol}`);
+    if (isDevelopment) {
+      console.log(`[YahooFinance] Successfully fetched ${data.values.length} bars for ${symbol}`);
+    }
 
     // Transform Twelve Data format to our format
     return data.values.map((bar) => ({
@@ -94,7 +105,7 @@ async function fetchFromTwelveData(
     })).reverse(); // Twelve Data returns newest first, we want oldest first
 
   } catch (error) {
-    console.error(`Error fetching ${symbol} from Twelve Data:`, error);
+    console.error(`[YahooFinance] Error fetching ${symbol} from Twelve Data:`, error);
     return generateFallbackData(symbol, startDate, endDate, interval);
   }
 }
@@ -197,7 +208,7 @@ export const fetchHistoricalData = async (
     const twelveSymbol = symbolMapping[symbol];
     return await fetchFromTwelveData(twelveSymbol, '15min', startDate, endDate);
   } catch (error) {
-    console.error(`Error fetching data for ${symbol}:`, error);
+    console.error(`[YahooFinance] Error fetching data for ${symbol}:`, error);
     return [];
   }
 };
@@ -212,7 +223,7 @@ export const fetchDailyData = async (
     const twelveSymbol = symbolMapping[symbol];
     return await fetchFromTwelveData(twelveSymbol, '1day', startDate, endDate);
   } catch (error) {
-    console.error(`Error fetching daily data for ${symbol}:`, error);
+    console.error(`[YahooFinance] Error fetching daily data for ${symbol}:`, error);
     return [];
   }
 };
@@ -231,7 +242,7 @@ export const fetchMultipleInstruments = async (
         const data = await fetchHistoricalData(symbol, startDate, endDate);
         results[symbol] = data;
       } catch (error) {
-        console.error(`Failed to fetch ${symbol}:`, error);
+        console.error(`[YahooFinance] Failed to fetch ${symbol}:`, error);
         results[symbol] = [];
       }
     })
