@@ -13,16 +13,15 @@ This guide covers deploying IBLevels to production with best practices for secur
 - [x] Production logging implemented
 
 ### ⚙️ Configuration
-- [ ] Environment variables set up
-- [ ] Twelve Data API key obtained
+- [ ] Environment variables set up (optional - no API keys needed!)
 - [ ] Domain name configured (if applicable)
 - [ ] SSL certificate ready
 
 ### 🧪 Testing
 - [ ] Test locally with production build
-- [ ] Test API endpoints
+- [ ] Test API endpoints (Yahoo Finance - free!)
 - [ ] Test on different devices/browsers
-- [ ] Test with real Twelve Data API
+- [ ] Test with real market data
 
 ---
 
@@ -32,7 +31,6 @@ Create a `.env.production` file (or configure in your hosting platform):
 
 ```bash
 # Required
-TWELVE_DATA_API_KEY=your_actual_api_key_here
 NODE_ENV=production
 
 # Recommended
@@ -44,11 +42,15 @@ CACHE_DURATION=300
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
-### Get Twelve Data API Key
-1. Go to https://twelvedata.com/
-2. Sign up for free account (800 API calls/day)
-3. Get your API key from dashboard
-4. Add to environment variables
+### Data Source: Yahoo Finance (FREE!)
+The application uses Yahoo Finance API which is:
+- ✅ **Completely FREE** - No API key required
+- ✅ **No rate limits** - No signup needed
+- ✅ **Real futures data** - ES, NQ, GC, CL and more
+- ✅ **24/5 coverage** - All trading sessions
+- ✅ **Production ready** - Used by millions worldwide
+
+**No setup required!** Just deploy and it works.
 
 ---
 
@@ -67,8 +69,7 @@ NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 1. Push code to GitHub/GitLab
 2. Visit https://vercel.com
 3. Import your repository
-4. Add environment variables in Vercel dashboard:
-   - `TWELVE_DATA_API_KEY`
+4. Add environment variables in Vercel dashboard (optional):
    - `NODE_ENV=production`
    - `API_RATE_LIMIT=60`
    - `CACHE_DURATION=300`
@@ -274,7 +275,7 @@ npm start
 ### Caching
 - Default: 5 minutes (300 seconds)
 - Adjust via `CACHE_DURATION` env variable
-- Reduces API calls to Twelve Data
+- Improves response times and reduces server load
 - Responses include `cached: true/false` field
 
 ### Security Headers
@@ -307,9 +308,9 @@ Automatically added to all responses:
 
 ### Issue: API calls failing in production
 **Solution:**
-- Verify `TWELVE_DATA_API_KEY` is set correctly
-- Check API usage limits (800/day free tier)
+- Yahoo Finance is free with no API keys needed
 - Check server logs for error messages
+- Verify network connectivity to Yahoo Finance
 
 ### Issue: Rate limiting too strict
 **Solution:**
@@ -319,7 +320,7 @@ Automatically added to all responses:
 ### Issue: Slow response times
 **Solution:**
 - Increase `CACHE_DURATION` (default: 300s)
-- Consider upgrading Twelve Data plan
+- Yahoo Finance has no rate limits
 - Check server resources
 
 ### Issue: Build fails
@@ -367,14 +368,12 @@ npm run build
 - **AWS Amplify:** ~$15-30/month
 - **Self-hosted VPS:** $5-10/month
 
-### API (Twelve Data)
-- **Free:** 800 calls/day (good for testing)
-- **Basic:** $8/month - 8,000 calls/day
-- **Pro:** $50/month - Unlimited
+### API Costs
+- **Yahoo Finance:** $0/month - FREE forever, no limits! 🎉
 
 ### Total Estimated Cost
-- **Minimum:** $0/month (Vercel free + Twelve Data free)
-- **Recommended:** $20-30/month (Paid hosting + Basic API)
+- **Minimum:** $0/month (Vercel free + Yahoo Finance free)
+- **Recommended:** $20/month (Paid hosting + free data)
 
 ---
 
@@ -436,10 +435,10 @@ For deployment issues:
 ## ✅ Production Checklist Summary
 
 - [ ] Code tested locally with production build
-- [ ] Environment variables configured
-- [ ] Twelve Data API key obtained
+- [ ] Environment variables configured (optional)
 - [ ] Hosting platform selected
 - [ ] Application deployed
+- [ ] Real market data verified (Yahoo Finance - free!)
 - [ ] SSL certificate active
 - [ ] Domain configured (if applicable)
 - [ ] Monitoring setup

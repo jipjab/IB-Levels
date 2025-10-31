@@ -1,111 +1,150 @@
 import { OHLCVData, InstrumentSymbol } from './types';
 import { getInstrument } from './instruments';
-import { format } from 'date-fns';
+import { format, subDays } from 'date-fns';
 
-// --- Twelve Data API Integration ---
-// Fetches real futures market data from Twelve Data API
-// API Docs: https://twelvedata.com/docs
+// --- Yahoo Finance API Integration ---
+// Fetches real futures market data from Yahoo Finance (FREE)
+// Yahoo Finance provides actual futures contract data with correct pricing
 
-// Map our symbols to Twelve Data futures symbols
+// Map our symbols to Yahoo Finance futures symbols
 const symbolMapping: Record<InstrumentSymbol, string> = {
-  'ES': 'ES', // E-mini S&P 500
-  'MES': 'MES', // Micro E-mini S&P 500
-  'NQ': 'NQ', // E-mini Nasdaq 100
-  'MNQ': 'MNQ', // Micro E-mini Nasdaq 100
-  'GC': 'GC', // Gold Futures
-  'MGC': 'MGC', // Micro Gold Futures
-  'CL': 'CL', // Crude Oil Futures
-  'MCL': 'MCL', // Micro Crude Oil Futures
+  'ES': 'ES=F', // E-mini S&P 500 Futures
+  'MES': 'ES=F', // Micro E-mini S&P 500 (use ES as proxy)
+  'NQ': 'NQ=F', // E-mini Nasdaq 100 Futures
+  'MNQ': 'NQ=F', // Micro E-mini Nasdaq 100 (use NQ as proxy)
+  'GC': 'GC=F', // Gold Futures
+  'MGC': 'GC=F', // Micro Gold Futures (use GC as proxy)
+  'CL': 'CL=F', // Crude Oil Futures
+  'MCL': 'CL=F', // Micro Crude Oil (use CL as proxy)
 };
 
-interface TwelveDataBar {
-  datetime: string;
-  open: string;
-  high: string;
-  low: string;
-  close: string;
-  volume?: string;
+interface YahooFinanceQuote {
+  open: number[];
+  high: number[];
+  low: number[];
+  close: number[];
+  volume: number[];
 }
 
-interface TwelveDataResponse {
-  values?: TwelveDataBar[];
-  status?: string;
-  message?: string;
+interface YahooFinanceResult {
+  meta: {
+    symbol: string;
+    regularMarketPrice?: number;
+  };
+  timestamp: number[];
+  indicators: {
+    quote: YahooFinanceQuote[];
+  };
 }
 
-const TWELVE_DATA_API_KEY = process.env.TWELVE_DATA_API_KEY;
-const TWELVE_DATA_BASE_URL = 'https://api.twelvedata.com';
+interface YahooFinanceResponse {
+  chart: {
+    result: YahooFinanceResult[] | null;
+    error: { code: string; description: string } | null;
+  };
+}
 
 // Helper for conditional logging
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-async function fetchFromTwelveData(
+async function fetchFromYahooFinance(
   symbol: string,
   interval: string,
   startDate: Date,
   endDate: Date
 ): Promise<OHLCVData[]> {
-  // If no API key, fall back to sample data
-  if (!TWELVE_DATA_API_KEY || TWELVE_DATA_API_KEY === 'your_api_key_here') {
-    if (isDevelopment) {
-      console.warn('[YahooFinance] Twelve Data API key not configured. Using sample data.');
-    }
-    return generateFallbackData(symbol, startDate, endDate, interval);
-  }
-
-  const twelveSymbol = `${symbol}:CME`; // CME exchange for futures
-  const params = new URLSearchParams({
-    symbol: twelveSymbol,
-    interval: interval,
-    apikey: TWELVE_DATA_API_KEY,
-    outputsize: '5000', // Maximum data points
-    format: 'JSON',
-    start_date: format(startDate, 'yyyy-MM-dd'),
-    end_date: format(endDate, 'yyyy-MM-dd'),
-  });
-
   try {
-    const url = `${TWELVE_DATA_BASE_URL}/time_series?${params}`;
+    // Yahoo Finance uses Unix timestamps
+    const period1 = Math.floor(startDate.getTime() / 1000);
+    const period2 = Math.floor(endDate.getTime() / 1000);
+    
+    // Map intervals (15min for intraday, 1d for daily)
+    const yahooInterval = interval.includes('min') ? '15m' : '1d';
+    
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${yahooInterval}&period1=${period1}&period2=${period2}`;
+    
     if (isDevelopment) {
-      console.log(`[YahooFinance] Fetching ${symbol} from Twelve Data...`);
+      console.log(`[YahooFinance] Fetching ${symbol} from Yahoo Finance...`);
+      console.log(`[YahooFinance] Date range: ${format(startDate, 'yyyy-MM-dd')} to ${format(endDate, 'yyyy-MM-dd')}`);
     }
-    const response = await fetch(url);
+
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      },
+    });
     
     if (!response.ok) {
-      throw new Error(`Twelve Data API error: ${response.status}`);
+      throw new Error(`Yahoo Finance API error: ${response.status}`);
     }
 
-    const data: TwelveDataResponse = await response.json();
+    const data: YahooFinanceResponse = await response.json();
 
-    if (data.status === 'error') {
-      console.error('[YahooFinance] Twelve Data API error:', data.message);
+    if (data.chart.error) {
+      console.error('[YahooFinance] Yahoo Finance API error:', data.chart.error);
       return generateFallbackData(symbol, startDate, endDate, interval);
     }
 
-    if (!data.values || data.values.length === 0) {
+    if (!data.chart.result || data.chart.result.length === 0) {
       if (isDevelopment) {
         console.warn(`[YahooFinance] No data returned for ${symbol}`);
       }
       return generateFallbackData(symbol, startDate, endDate, interval);
     }
 
-    if (isDevelopment) {
-      console.log(`[YahooFinance] Successfully fetched ${data.values.length} bars for ${symbol}`);
+    const result = data.chart.result[0];
+    const timestamps = result.timestamp;
+    const quotes = result.indicators.quote[0];
+
+    if (!timestamps || timestamps.length === 0) {
+      if (isDevelopment) {
+        console.warn(`[YahooFinance] No timestamp data for ${symbol}`);
+      }
+      return generateFallbackData(symbol, startDate, endDate, interval);
     }
 
-    // Transform Twelve Data format to our format
-    return data.values.map((bar) => ({
-      timestamp: new Date(bar.datetime).getTime(),
-      date: new Date(bar.datetime),
-      open: parseFloat(bar.open),
-      high: parseFloat(bar.high),
-      low: parseFloat(bar.low),
-      close: parseFloat(bar.close),
-      volume: bar.volume ? parseFloat(bar.volume) : 100000,
-    })).reverse(); // Twelve Data returns newest first, we want oldest first
+    if (isDevelopment) {
+      console.log(`[YahooFinance] Successfully fetched ${timestamps.length} bars for ${symbol}`);
+      console.log(`[YahooFinance] Current price: ${result.meta.regularMarketPrice}`);
+    }
+
+    // Transform Yahoo Finance format to our format
+    const transformedData: OHLCVData[] = timestamps
+      .map((timestamp, index) => {
+        const open = quotes.open[index];
+        const high = quotes.high[index];
+        const low = quotes.low[index];
+        const close = quotes.close[index];
+        const volume = quotes.volume[index];
+
+        // Skip if any critical data is null
+        if (open == null || high == null || low == null || close == null) {
+          return null;
+        }
+
+        return {
+          timestamp: timestamp * 1000, // Convert to milliseconds
+          date: new Date(timestamp * 1000),
+          open: Number(open.toFixed(2)),
+          high: Number(high.toFixed(2)),
+          low: Number(low.toFixed(2)),
+          close: Number(close.toFixed(2)),
+          volume: volume || 0,
+        };
+      })
+      .filter((item): item is OHLCVData => item !== null);
+
+    if (isDevelopment) {
+      console.log(`[YahooFinance] Transformed ${transformedData.length} data points for ${symbol}`);
+      if (transformedData.length > 0) {
+        console.log(`[YahooFinance] Price range: ${Math.min(...transformedData.map(d => d.low)).toFixed(2)} - ${Math.max(...transformedData.map(d => d.high)).toFixed(2)}`);
+      }
+    }
+
+    return transformedData;
 
   } catch (error) {
-    console.error(`[YahooFinance] Error fetching ${symbol} from Twelve Data:`, error);
+    console.error(`[YahooFinance] Error fetching ${symbol} from Yahoo Finance:`, error);
     return generateFallbackData(symbol, startDate, endDate, interval);
   }
 }
@@ -205,8 +244,8 @@ export const fetchHistoricalData = async (
   endDate: Date
 ): Promise<OHLCVData[]> => {
   try {
-    const twelveSymbol = symbolMapping[symbol];
-    return await fetchFromTwelveData(twelveSymbol, '15min', startDate, endDate);
+    const yahooSymbol = symbolMapping[symbol];
+    return await fetchFromYahooFinance(yahooSymbol, '15min', startDate, endDate);
   } catch (error) {
     console.error(`[YahooFinance] Error fetching data for ${symbol}:`, error);
     return [];
@@ -220,8 +259,8 @@ export const fetchDailyData = async (
   endDate: Date
 ): Promise<OHLCVData[]> => {
   try {
-    const twelveSymbol = symbolMapping[symbol];
-    return await fetchFromTwelveData(twelveSymbol, '1day', startDate, endDate);
+    const yahooSymbol = symbolMapping[symbol];
+    return await fetchFromYahooFinance(yahooSymbol, '1day', startDate, endDate);
   } catch (error) {
     console.error(`[YahooFinance] Error fetching daily data for ${symbol}:`, error);
     return [];

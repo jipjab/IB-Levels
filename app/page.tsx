@@ -67,6 +67,14 @@ export default function HomePage() {
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
           const cacheData: CacheData = JSON.parse(cached);
+          
+          // Validate cache data structure
+          if (!cacheData.data || !Array.isArray(cacheData.data)) {
+            console.warn('⚠️ Invalid cache data structure, clearing...');
+            localStorage.removeItem(CACHE_KEY);
+            return false;
+          }
+          
           const cacheAge = Date.now() - cacheData.timestamp;
           
           // Check if cache is still valid
@@ -82,12 +90,21 @@ export default function HomePage() {
           }
         }
       } catch (error) {
-        console.error('Error loading cache:', error);
+        console.error('❌ Error loading cache, clearing:', error);
+        // Clear corrupted cache
+        try {
+          localStorage.removeItem(CACHE_KEY);
+        } catch (e) {
+          console.error('Failed to clear cache:', e);
+        }
       }
       return false;
     };
     
-    loadCachedData();
+    const hasCache = loadCachedData();
+    if (!hasCache) {
+      console.log('🚀 No valid cache, will fetch fresh data');
+    }
   }, [session]);
   
   // Update next boundary timer
@@ -105,11 +122,22 @@ export default function HomePage() {
   }, [mounted, session]);
 
   const fetchTradingData = useCallback(async (force: boolean = false) => {
+    console.log('🔄 fetchTradingData called', { 
+      force, 
+      instrumentsCount: instruments.length,
+      mounted 
+    });
+    
     if (instruments.length === 0) {
+      console.log('⚠️ No instruments selected');
       setTradingLevels([]);
       setError(null);
       setLastFetchTime(null);
-      localStorage.removeItem(CACHE_KEY);
+      try {
+        localStorage.removeItem(CACHE_KEY);
+      } catch (e) {
+        console.error('Failed to clear cache:', e);
+      }
       return;
     }
 
@@ -179,10 +207,10 @@ export default function HomePage() {
 
       // Log data source info
       if (result.meta) {
-        const dataSourceEmoji = result.meta.dataSource === 'twelvedata' ? '🌐' : '🎲';
-        const dataSourceText = result.meta.dataSource === 'twelvedata' ? 'Twelve Data API' : 'Sample Data';
+        const dataSourceEmoji = result.meta.dataSource === 'yahoofinance' ? '📊' : '🎲';
+        const dataSourceText = result.meta.dataSource === 'yahoofinance' ? 'Yahoo Finance (Real Futures Data)' : 'Sample Data';
         console.log(`${dataSourceEmoji} Data Source: ${dataSourceText}`);
-        console.log(`🔑 API Key Configured: ${result.meta.apiKeyConfigured ? 'Yes ✅' : 'No ❌'}`);
+        console.log(`✅ Using FREE Yahoo Finance API for accurate futures pricing`);
       }
 
       if (result.success) {
@@ -224,8 +252,17 @@ export default function HomePage() {
 
   // Auto-fetch data when filters change or on mount
   useEffect(() => {
-    if (mounted) {
+    console.log('📍 Auto-fetch useEffect triggered', { 
+      mounted, 
+      instrumentsCount: instruments.length,
+      session 
+    });
+    
+    if (mounted && instruments.length > 0) {
+      console.log('✅ Triggering fetch...');
       fetchTradingData();
+    } else if (mounted && instruments.length === 0) {
+      console.log('⚠️ Mounted but no instruments selected');
     }
   }, [mounted, instruments, startDate, endDate, session, fetchTradingData]);
 
@@ -455,11 +492,11 @@ export default function HomePage() {
                   </p>
                   
                   <p>
-                    <strong className="text-gray-300">Data:</strong> Provided by Twelve Data. Charts powered by TradingView™. All data &quot;as is&quot; - verify independently.
+                    <strong className="text-gray-300">Data:</strong> Provided by Yahoo Finance (FREE). Charts powered by TradingView™. All data &quot;as is&quot; - verify independently.
                   </p>
                   
                   <p>
-                    <strong className="text-gray-300">No Affiliation:</strong> We have no access to your trading accounts and no affiliation with TradingView or Twelve Data.
+                    <strong className="text-gray-300">No Affiliation:</strong> We have no access to your trading accounts and no affiliation with TradingView or Yahoo Finance.
                   </p>
                 </div>
               </details>
@@ -479,7 +516,7 @@ export default function HomePage() {
                 </p>
                 
                 <p>
-                  <strong className="text-gray-300">Market Data:</strong> Market data is provided by Twelve Data. Real-time and historical market data is licensed from Twelve Data and provided through their API services. Learn more at <a href="https://twelvedata.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">https://twelvedata.com</a>.
+                  <strong className="text-gray-300">Market Data:</strong> Market data is provided by Yahoo Finance. Real-time and historical futures data is sourced from Yahoo Finance API services, which aggregates data from major exchanges including CME Group. All data is provided free of charge.
                 </p>
                 
                 <p>

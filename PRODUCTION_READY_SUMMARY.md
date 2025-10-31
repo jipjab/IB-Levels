@@ -48,7 +48,7 @@ Your Trading Levels application is now production-ready! Here's a complete summa
 - Default TTL: 5 minutes (configurable)
 - Automatic cleanup of expired entries
 - Cache statistics monitoring
-- Reduces Twelve Data API usage significantly
+- Improves response times and reduces server load
 
 **Features:**
 ```typescript
@@ -124,8 +124,8 @@ log.error('API Error:', ...);        // Always logged
 #### Created Files:
 
 **1. `env.template`** - Environment Variables Template
-- Complete list of required and optional environment variables
-- Instructions for Twelve Data API setup
+- Complete list of optional environment variables
+- Yahoo Finance API (FREE - no API key needed!)
 - Configuration for rate limiting, caching, monitoring
 
 **2. `PRODUCTION_DEPLOYMENT.md`** - Comprehensive Deployment Guide
@@ -252,8 +252,8 @@ Route (app)                              Size     First Load JS
 
 ### Required Environment Variables
 ```bash
-TWELVE_DATA_API_KEY=your_actual_api_key_here
 NODE_ENV=production
+# That's it! Yahoo Finance is FREE - no API key needed!
 ```
 
 ### Optional Environment Variables
@@ -277,11 +277,13 @@ cp env.template .env.production
 nano .env.production
 ```
 
-### 2. Get Twelve Data API Key
-1. Visit https://twelvedata.com/
-2. Sign up for free account (800 API calls/day)
-3. Copy your API key
-4. Add to `.env.production`
+### 2. Data Source: Yahoo Finance (FREE!)
+- ✅ No API key required
+- ✅ No signup needed
+- ✅ Real futures data for ES, NQ, GC, CL
+- ✅ FREE forever with no rate limits!
+
+**No setup required** - Just deploy and it works!
 
 ### 3. Test Locally
 ```bash
@@ -325,13 +327,14 @@ vercel --prod
 - **Railway:** Free tier, then ~$5/month
 - **DigitalOcean:** $5-12/month
 
-### API Costs (Twelve Data)
-- **Free:** 800 calls/day (good for light usage)
-- **Basic:** $8/month - 8,000 calls/day
-- **Pro:** $50/month - Unlimited
+### API Costs
+- **Yahoo Finance:** $0/month - FREE forever! 🎉
+  - No rate limits
+  - No signup
+  - Real futures data
 
 ### Total Minimum Cost
-**$0/month** - Vercel free tier + Twelve Data free tier
+**$0/month** - Vercel free tier + Yahoo Finance free forever
 
 ---
 
@@ -362,7 +365,7 @@ vercel --prod
 - `README.md` - General information
 
 ### Key Resources
-- Twelve Data: https://twelvedata.com/
+- Yahoo Finance: https://finance.yahoo.com (FREE data source!)
 - Vercel Docs: https://vercel.com/docs
 - Next.js Docs: https://nextjs.org/docs
 

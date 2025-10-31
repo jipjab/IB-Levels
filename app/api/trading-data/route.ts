@@ -54,11 +54,7 @@ export async function GET(request: NextRequest) {
     const endDateParam = searchParams.get('endDate');
     const sessionParam = searchParams.get('session');
 
-    // Check API key status
-    const hasApiKey = !!process.env.TWELVE_DATA_API_KEY && 
-                     process.env.TWELVE_DATA_API_KEY !== 'your_api_key_here';
-    
-    log.info('API Status:', hasApiKey ? 'Twelve Data API Enabled' : 'Using Sample Data (No API Key)');
+    log.info('API Status: Using Yahoo Finance (Free, Real Futures Data)');
 
     // Validate parameters
     if (!instrumentsParam || !startDateParam || !endDateParam || !sessionParam) {
@@ -172,8 +168,8 @@ export async function GET(request: NextRequest) {
     const responseData = {
       data: tradingLevels,
       meta: {
-        dataSource: hasApiKey ? 'twelvedata' : 'sample',
-        apiKeyConfigured: hasApiKey,
+        dataSource: 'yahoofinance',
+        apiKeyConfigured: true, // Yahoo Finance is free, no key needed
       },
     };
 

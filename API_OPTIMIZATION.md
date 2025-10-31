@@ -2,7 +2,7 @@
 
 ## Overview
 
-This application uses **smart caching** to minimize API calls to Twelve Data, respecting rate limits while keeping data fresh.
+This application uses **smart caching** to improve response times and provide a smooth user experience. While Yahoo Finance has no rate limits, caching still improves performance significantly.
 
 ## How It Works
 
@@ -86,14 +86,17 @@ Users can see what's happening:
 2. No session close since last fetch
 ```
 
-## For Twelve Data API
+## For Yahoo Finance API
 
-### Free Tier (800 calls/day)
-- **Without optimization**: ~50 calls/day/user → 16 users max
-- **With optimization**: ~8 calls/day/user → 100 users max
+### Completely FREE (No limits!)
+- **No rate limits** from Yahoo Finance
+- **Caching still improves** response times and user experience
+- Can support unlimited users (limited only by hosting resources)
 
-### Basic Plan (Higher limits)
-- Can support hundreds of concurrent users
+### Why Caching Still Matters
+- Faster response times (instant vs ~500ms)
+- Reduced server load and bandwidth
+- Better user experience
 - Auto-refresh at session boundaries ensures data freshness
 - Manual refresh always available for latest data
 

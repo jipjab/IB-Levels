@@ -6,20 +6,12 @@
 
 ## ⚡ 5-Minute Deploy to Vercel (Recommended)
 
-### Step 1: Get API Key
-1. Go to https://twelvedata.com/
-2. Sign up (free)
-3. Copy your API key
-
-### Step 2: Deploy
+### Step 1: Deploy
 1. Go to https://vercel.com
 2. Sign in with GitHub
 3. Click "New Project"
 4. Import your `Trading_Levels` repository
-5. Add environment variable:
-   - Key: `TWELVE_DATA_API_KEY`
-   - Value: (paste your API key)
-6. Click "Deploy"
+5. Click "Deploy" (no API keys required - Yahoo Finance is free!)
 
 ### Done! ✅
 Your app will be live at: `https://your-app-name.vercel.app`
@@ -29,19 +21,17 @@ Your app will be live at: `https://your-app-name.vercel.app`
 ## 🧪 Test Locally First
 
 ```bash
-# 1. Copy environment template
-cp env.template .env.local
+# 1. Install dependencies
+npm install
 
-# 2. Edit .env.local and add your API key
-# TWELVE_DATA_API_KEY=your_key_here
-
-# 3. Build
+# 2. Build
 npm run build
 
-# 4. Test
+# 3. Test
 npm start
 
-# 5. Visit http://localhost:3000
+# 4. Visit http://localhost:3000
+# (No API keys needed - Yahoo Finance is free!)
 ```
 
 ---
@@ -59,9 +49,8 @@ npm start
 
 ## 🎯 Quick Checklist
 
-- [ ] Get Twelve Data API key
 - [ ] Test locally (optional but recommended)
-- [ ] Deploy to Vercel
+- [ ] Deploy to Vercel (no API keys needed!)
 - [ ] Add environment variable
 - [ ] Test live deployment
 - [ ] Done! 🎉
@@ -78,11 +67,11 @@ npm start
 
 ## 💰 Cost
 
-**Free tier is enough to start:**
+**Completely FREE to start:**
 - Vercel: Free (then $20/month if needed)
-- Twelve Data: Free 800 calls/day
+- Yahoo Finance API: Free forever, no limits!
 
-**Total: $0/month to start** 🎉
+**Total: $0/month forever** 🎉
 
 ---
 

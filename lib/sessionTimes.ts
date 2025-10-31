@@ -1,29 +1,31 @@
 import { TradingSession, TradingSessionType } from './types';
 
 // Trading session times in ET (Eastern Time)
+// Note: ETF data is only available during US market hours (9:30 AM - 4:00 PM ET)
+// For pre-market and extended hours, data may be limited or unavailable
 export const TRADING_SESSIONS: Record<TradingSessionType, TradingSession> = {
   Asia: {
     type: 'Asia',
     name: 'Asia Session',
-    startHour: 18, // 6:00 PM ET
+    startHour: 18, // 6:00 PM ET (previous day close)
     startMinute: 0,
-    endHour: 3, // 3:00 AM ET (next day)
+    endHour: 3, // 3:00 AM ET (before London open)
     endMinute: 0,
   },
   London: {
     type: 'London',
     name: 'London Session',
-    startHour: 3, // 3:00 AM ET
+    startHour: 4, // 4:00 AM ET (pre-market begins)
     startMinute: 0,
-    endHour: 12, // 12:00 PM ET
-    endMinute: 0,
+    endHour: 11, // 11:00 AM ET (before NY session)
+    endMinute: 30,
   },
   NewYork: {
     type: 'NewYork',
     name: 'New York Session',
-    startHour: 9, // 9:30 AM ET
+    startHour: 9, // 9:30 AM ET (market open)
     startMinute: 30,
-    endHour: 16, // 4:00 PM ET
+    endHour: 16, // 4:00 PM ET (market close)
     endMinute: 0,
   },
 };
