@@ -316,6 +316,104 @@ export default function HomePage() {
         </div>
       </header>
 
+      {/* Description Section */}
+      <div className="bg-gradient-to-b from-blue-50 to-white dark:from-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-gray-700 transition-colors">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
+              Professional Initial Balance Levels for Futures Traders
+            </h1>
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Professional Initial Balance (IB) analysis for futures traders. Get real-time trading levels for ES, NQ, GC, CL and more — completely free, no signup required.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            {/* What It Is */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 transition-colors">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    What is Initial Balance?
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Initial Balance (IB) is a Market Profile concept representing the high and low price range during the first period of a trading session. We calculate both 1-hour and 15-minute IB levels to identify key support and resistance zones.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* How It Works */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 transition-colors">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    How It Works
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Select your futures contracts (ES, NQ, GC, CL, etc.), choose a date range, and pick your trading session (Asia, London, or New York). We fetch real market data from Yahoo Finance and automatically calculate IB levels with interactive charts and exportable tables.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Why Use It */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 transition-colors">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    Why Use IBLevels?
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    100% free with no API keys or signups. Get accurate futures data, track multiple sessions, analyze historical patterns, and make informed trading decisions. Perfect for day traders using Initial Balance methodology.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Start Guide */}
+          <div className="bg-blue-50 dark:bg-gray-800/50 rounded-lg p-4 sm:p-6 border border-blue-200 dark:border-gray-700">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 text-center">
+              Quick Start Guide
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <div className="flex items-start gap-2">
+                <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 dark:bg-blue-500 text-white text-xs font-bold">1</span>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Select futures instruments below</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 dark:bg-blue-500 text-white text-xs font-bold">2</span>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Choose your date range</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 dark:bg-blue-500 text-white text-xs font-bold">3</span>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Pick trading session (NY, London, Asia)</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 dark:bg-blue-500 text-white text-xs font-bold">4</span>
+                <p className="text-sm text-gray-700 dark:text-gray-300">View levels, charts & export data</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
           {/* Filter Panel */}
           <FilterPanel
             instruments={instruments}
